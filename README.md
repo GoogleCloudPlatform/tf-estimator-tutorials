@@ -12,8 +12,8 @@
   * Dimensionality Reduction (Autoencoding)
   * Sequence Models (RNN and LSTMs)
   * Image Analysis (CNN for Image Classification)
-  *  How to use **canned estimators**  to train ML models.
-
+*  How to use **canned estimators**  to train ML models.
+  
 * How to implement **custom estimators** (model_fn & EstimatorSpec).
 
 * A standard **metadata-driven** approach to build the model **feature_column**(s) including:

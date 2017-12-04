@@ -16,7 +16,11 @@
 
 * How to implement **custom estimators** (model_fn & EstimatorSpec).
 
-* A standard **metadata-driven** approach to build the model **feature_column**(s) (including numeric features as well as categorical features with 1) vocabulary, 2) hash bucket, and 3) identity.
+* A standard **metadata-driven** approach to build the model **feature_column**(s) including:
+  * **numerical** features
+  * **categorical** features with **vocabulary**, 
+  * **categorical** features **hash bucket**, and
+  * **categorical** features with **identity**
 
 * Data **input pipelines** (input_fn) using:
   * tf.estimator.inputs.**pandas_input_fn**, 

@@ -39,7 +39,7 @@
   * crossing, 
   * clipping,
   * embedding,
-  * indicators (categorical features), and
+  * indicators (encoding categorical features), and
   * bucketization
   *  How to use the  tf.contrib.learn.**experiment** APIs to train, evaluate, and export models
 

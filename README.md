@@ -27,7 +27,7 @@
   * tf.train.**string_input_producer**, and 
   * tf.data.**Dataset** APIs to read both **.csv** and **.tfrecords** (tf.example) data files
   * tf.contrib.timeseries.**RandomWindowInputFn** and **WholeDatasetInputFn** for time-series data
-  * Feature **preprocessing** and **creation** as part of reading data (input_fn), for example, sin, sqrt, square, log, boolean comparisons, euclidean distance, etc.
+  * Feature **preprocessing** and **creation** as part of reading data (input_fn), for example, sin, sqrt, polynomial expansion, fourier transform, log, boolean comparisons, euclidean distance, custom formulas, etc.
 
 * A standard approach to prepare **wide** (sparse) and **deep** (dense) feature_column(s) for Wide and Deep **DNN Liner Combined Models**
 

@@ -19,11 +19,11 @@
 *  A standard **metadata-driven** approach to build the model **feature_column**(s) (including numeric features as well as categorical features with 1) vocabulary, 2) hash bucket, and 3) identity.
 
 *  Data **input pipelines** (input_fn) using: 
-  * tf.estimator.inputs.**pandas_input_fn**, 
-  * tf.train.**string_input_producer**, and 
-  * tf.data.**Dataset** APIs to read both **.csv** and **.tfrecords** (tf.example) data files
-  * tf.contrib.timeseries.**RandomWindowInputFn** and **WholeDatasetInputFn** for time-series data
-  * Feature **preprocessing** and **creation** as part of reading data (input_fn), for example, sin, sqrt, square, log, boolean comparisons, euclidean distance, etc.
+ * tf.estimator.inputs.**pandas_input_fn**, 
+ * tf.train.**string_input_producer**, and 
+ * tf.data.**Dataset** APIs to read both **.csv** and **.tfrecords** (tf.example) data files
+ * tf.contrib.timeseries.**RandomWindowInputFn** and **WholeDatasetInputFn** for time-series data
+ * Feature **preprocessing** and **creation** as part of reading data (input_fn), for example, sin, sqrt, square, log, boolean comparisons, euclidean distance, etc.
 
 *  A standard approach to prepare **wide** (sparse) and **deep** (dense) feature_column(s) for Wide and Deep **DNN Liner Combined Models**
 

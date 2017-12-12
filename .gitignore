@@ -1,17 +1,4 @@
-01 - Regression/trained_models
-01 - Regression/.ipynb_checkpoints
-01 - Regression/.DS_Store
-02 - Classification/trained_models
-02 - Classification/.ipynb_checkpoints
-02 - Classification/.DS_Store
-03 - Clustering/trained_models
-03 - Clustering/.ipynb_checkpoints
-03 - Clustering/.DS_Store
-04 - Time Series/trained_models
-04 - Time Series/.ipynb_checkpoints
-04 - Time Series/.DS_Store
-05 - Autoencoding/trained_models
-05 - Autoencoding/.ipynb_checkpoints
-05 - Autoencoding/.DS_Store
-.ipynb_checkpoints
-.DS_Store
+**/trained_models
+**/.DS_Store
+**/.ipynb_checkpoints
+**/*.pyc

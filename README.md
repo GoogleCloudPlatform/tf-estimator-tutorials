@@ -10,6 +10,7 @@
   * Dimensionality Reduction (Autoencoding)
   * Sequence Models (RNN and LSTMs)
   * Image Analysis (CNN for Image Classification)
+  * Text Analysis (Text Classification with embeddings, CNN, and RNN)
 *  How to use **canned estimators**  to train ML models.
   
 * How to implement **custom estimators** (model_fn & EstimatorSpec).
@@ -49,7 +50,7 @@
 * Early-stopping implementation
 * DynamicRnnEstimator and the use of variable-length sequences
 * Collaborative Filtering for Recommendation Models
-* Text Analysis (Text Classification, Topic Models, Word/Doc embedding, etc.)
+* Text Analysis (Topic Models, Word/Doc embedding, etc.)
 * tf.Transform to preprocessing and feature engineering
 * keras examples
 

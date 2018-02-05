@@ -1,0 +1,7 @@
+trainingInput:
+  scaleTier: CUSTOM
+  masterType: standard
+  workerType: standard
+  parameterServerType: large_model
+  workerCount: 3
+  parameterServerCount: 1

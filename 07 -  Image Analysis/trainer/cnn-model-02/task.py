@@ -82,12 +82,20 @@ def train_and_evaluate():
           keep_checkpoint_max=5,
           tf_random_seed=FLAGS.tf_random_seed))
 
+  # Profile Hook.
+  profile_hook = tf.train.ProfilerHook(
+      save_steps=FLAGS.save_checkpoints_steps,
+      output_dir=model_dir,
+      show_dataflow=True,
+      show_memory=True)
+
   # Specify training data paths, batch size and max steps.
   train_spec = tf.estimator.TrainSpec(
       input_fn=sm.generate_input_fn(filenames=get_filenames(FLAGS.train_data_pattern),
                                     mode=tf.estimator.ModeKeys.TRAIN,
                                     batch_size=FLAGS.batch_size),
-      max_steps=FLAGS.max_steps, hooks=None
+      max_steps=FLAGS.max_steps,
+      hooks=[profile_hook]
   )
 
   # Currently (2017.12.14) the latest tf only support exporter with keras models.

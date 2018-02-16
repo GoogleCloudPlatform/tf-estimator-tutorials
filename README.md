@@ -35,12 +35,12 @@
 * The use of **weight_column** in the canned estimators
 
 * Implicit **Feature Engineering** as part of defining feature_colum(s), including:
-  * crossing, 
-  * clipping,
-  * embedding,
+  * crossing 
+  * embedding
   * indicators (encoding categorical features), and
   * bucketization
-  *  How to use the  tf.contrib.learn.**experiment** APIs to train, evaluate, and export models
+  
+*  How to use the  tf.contrib.learn.**experiment** APIs to train, evaluate, and export models
 
 * Howe to use the tf.estimator.**train_and_evaluate** function (along with trainSpec & evalSpec) train, evaluate, and export models
 

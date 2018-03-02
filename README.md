@@ -32,7 +32,7 @@
 
 * The use of **normalizer_fn** in numeric_column() to **scale** the numeric features using pre-computed statistics (for Min-Max or Standard scaling)
 
-* The use of **weight_column** in the canned estimators
+* The use of **weight_column** in the canned estimators, as well as in **loss function** in custom estimators.
 
 * Implicit **Feature Engineering** as part of defining feature_colum(s), including:
   * crossing 
@@ -43,6 +43,8 @@
 *  How to use the  tf.contrib.learn.**experiment** APIs to train, evaluate, and export models
 
 * Howe to use the tf.estimator.**train_and_evaluate** function (along with trainSpec & evalSpec) train, evaluate, and export models
+
+* How to use **tf.train.exponential_decay** function as a learning rate scheduler
 
 * How to **serve** exported model (export_savedmodel) using **csv** and **json** inputs
 

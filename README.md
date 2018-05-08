@@ -13,6 +13,10 @@
   * Text Analysis (Text Classification with embeddings, CNN, and RNN)
 *  How to use **canned estimators**  to train ML models.
   
+* How to use tf.Transform for preprocessing and feature engineering (TF v1.7)
+
+* TensorFlow Model Analysis TFMA to assess the quality of the mode (TF v1.7)
+
 * How to implement **custom estimators** (model_fn & EstimatorSpec).
 
 * A standard **metadata-driven** approach to build the model **feature_column**(s) including:
@@ -53,7 +57,6 @@
 * DynamicRnnEstimator and the use of variable-length sequences
 * Collaborative Filtering for Recommendation Models
 * Text Analysis (Topic Models, Word/Doc embedding, etc.)
-* tf.Transform to preprocessing and feature engineering
 * keras examples
 
 

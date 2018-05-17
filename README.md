@@ -1,6 +1,6 @@
-# TensorFlow Estimator APIs Tutorials - TensorFlow v1.4
+# TensorFlow Estimator APIs Tutorials
 
-## The tutorials use the TF estimator APIs to cover:
+## Theses tutorials use the TF estimator APIs to cover:
 
 * Various ML tasks, currently covering:
   * Classification
@@ -13,9 +13,11 @@
   * Text Analysis (Text Classification with embeddings, CNN, and RNN)
 *  How to use **canned estimators**  to train ML models.
   
-* How to use tf.Transform for preprocessing and feature engineering (TF v1.7)
+* How to use **tf.Transform** for preprocessing and feature engineering (TF v1.7)
 
-* TensorFlow Model Analysis TFMA to assess the quality of the mode (TF v1.7)
+* Implement **TensorFlow Model Analysis (TFMA)** to assess the quality of the mode (TF v1.7)
+
+* How to use **tf.Hub** text feature column embeddings (TF v1.7)
 
 * How to implement **custom estimators** (model_fn & EstimatorSpec).
 
@@ -56,8 +58,8 @@
 * Early-stopping implementation
 * DynamicRnnEstimator and the use of variable-length sequences
 * Collaborative Filtering for Recommendation Models
-* Text Analysis (Topic Models, Word/Doc embedding, etc.)
-* keras examples
+* Text Analysis (Topic Models, etc.)
+* Keras examples
 
 
 

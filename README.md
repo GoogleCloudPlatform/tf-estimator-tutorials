@@ -1,5 +1,8 @@
 # TensorFlow Estimator APIs Tutorials
 
+## Setup
+Please follow the directions in INSTALL if you need help setting up your environment.
+
 ## Theses tutorials use the TF estimator APIs to cover:
 
 * Various ML tasks, currently covering:
@@ -12,7 +15,7 @@
   * Image Analysis (CNN for Image Classification)
   * Text Analysis (Text Classification with embeddings, CNN, and RNN)
 *  How to use **canned estimators**  to train ML models.
-  
+
 * How to use **tf.Transform** for preprocessing and feature engineering (TF v1.7)
 
 * Implement **TensorFlow Model Analysis (TFMA)** to assess the quality of the mode (TF v1.7)
@@ -23,13 +26,13 @@
 
 * A standard **metadata-driven** approach to build the model **feature_column**(s) including:
   * **numerical** features
-  * **categorical** features with **vocabulary**, 
+  * **categorical** features with **vocabulary**,
   * **categorical** features **hash bucket**, and
   * **categorical** features with **identity**
 
 * Data **input pipelines** (input_fn) using:
-  * tf.estimator.inputs.**pandas_input_fn**, 
-  * tf.train.**string_input_producer**, and 
+  * tf.estimator.inputs.**pandas_input_fn**,
+  * tf.train.**string_input_producer**, and
   * tf.data.**Dataset** APIs to read both **.csv** and **.tfrecords** (tf.example) data files
   * tf.contrib.timeseries.**RandomWindowInputFn** and **WholeDatasetInputFn** for time-series data
   * Feature **preprocessing** and **creation** as part of reading data (input_fn), for example, sin, sqrt, polynomial expansion, fourier transform, log, boolean comparisons, euclidean distance, custom formulas, etc.
@@ -41,11 +44,11 @@
 * The use of **weight_column** in the canned estimators, as well as in **loss function** in custom estimators.
 
 * Implicit **Feature Engineering** as part of defining feature_colum(s), including:
-  * crossing 
+  * crossing
   * embedding
   * indicators (encoding categorical features), and
   * bucketization
-  
+
 *  How to use the  tf.contrib.learn.**experiment** APIs to train, evaluate, and export models
 
 * Howe to use the tf.estimator.**train_and_evaluate** function (along with trainSpec & evalSpec) train, evaluate, and export models

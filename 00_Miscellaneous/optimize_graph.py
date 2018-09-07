@@ -277,19 +277,19 @@ def optimize_graph(model_dir, graph_filename, transforms, output_node):
   else:
     graph_def = get_graph_def_from_file(os.path.join(model_dir, graph_filename))
 
-  optimised_graph_def = TransformGraph(
+  optimized_graph_def = TransformGraph(
       graph_def,
       input_names,
       output_names,
       transforms
   )
 
-  tf.train.write_graph(optimised_graph_def,
+  tf.train.write_graph(optimized_graph_def,
                       logdir=model_dir,
                       as_text=False,
-                      name='optimised_model.pb')
+                      name='optimized_model.pb')
 
-  print "Graph optimised!"
+  print "Graph optimized!"
 
 
 def freeze_graph(saved_model_dir, output_node_names, output_filename):
@@ -333,7 +333,7 @@ def convert_graph_def_to_saved_model(export_dir, graph_filepath):
             "class_ids": session.graph.get_tensor_by_name("head/predictions/class_ids:0"),
         }
     )
-    print "Optimised graph converted to SavedModel!"
+    print "Optimized graph converted to SavedModel!"
 
 
 ######################################################################################################
@@ -358,11 +358,11 @@ def optimize_model(saved_model_dir):
 
   optimize_graph(saved_model_dir, None, transforms, 'head/predictions/class_ids')
 
-  optimised_filepath = os.path.join(saved_model_dir,'optimised_model.pb')
+  optimized_filepath = os.path.join(saved_model_dir,'optimized_model.pb')
 
-  describe_graph(get_graph_def_from_file(optimised_filepath), show_nodes=True)
+  describe_graph(get_graph_def_from_file(optimized_filepath), show_nodes=True)
 
-  get_size(saved_model_dir, 'optimised_model.pb')
+  get_size(saved_model_dir, 'optimized_model.pb')
 
 
 
@@ -383,16 +383,16 @@ def main():
 
   describe_graph(get_graph_def_from_saved_model(saved_model_dir), show_nodes=True)
 
-  export_dir = os.path.join(saved_model_dir,'optimised')
+  export_dir = os.path.join(saved_model_dir,'optimized')
 
-  optimised_filepath = os.path.join(saved_model_dir,'optimised_model.pb')
+  optimized_filepath = os.path.join(saved_model_dir,'optimized_model.pb')
 
-  convert_graph_def_to_saved_model(export_dir, optimised_filepath)
+  convert_graph_def_to_saved_model(export_dir, optimized_filepath)
 
-  optimised_saved_model_dir = os.path.join(saved_model_dir,'optimised')
+  optimized_saved_model_dir = os.path.join(saved_model_dir,'optimized')
 
-  get_size(optimised_saved_model_dir)
+  get_size(optimized_saved_model_dir)
 
-  freezed_saved_model_dir = os.path.join(saved_model_dir,'optimised')
+  freezed_saved_model_dir = os.path.join(saved_model_dir,'optimized')
 
   inference_test(saved_model_dir=freezed_saved_model_dir, signature='serving_default', repeat=10000)

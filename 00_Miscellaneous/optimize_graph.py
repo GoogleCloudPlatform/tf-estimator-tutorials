@@ -369,12 +369,11 @@ def freeze_model(saved_model_dir):
 
 
 def main():
-
   export_dir, eval_data = setup_model()
   saved_model_dir = os.path.join(export_dir, os.listdir(export_dir)[-1])
   describe_graph(get_graph_def_from_saved_model(saved_model_dir), show_nodes=True)
 
-  inference_test(saved_model_dir=saved_model_dir, eval_data, signature='serving_default', repeat=10000)
+  inference_test(saved_model_dir, eval_data, signature='serving_default', repeat=10000)
 
   frozen_filepath = freeze_model(saved_model_dir)
   describe_graph(get_graph_def_from_file(frozen_filepath), show_nodes=True)
@@ -386,4 +385,8 @@ def main():
 
   convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath)
 
-  inference_test(saved_model_dir=freezed_saved_model_dir, eval_data, signature='serving_default', repeat=10000)
+  inference_test(freezed_saved_model_dir, eval_data, signature='serving_default', repeat=10000)
+
+
+if __name__ == '__main__':
+  main()

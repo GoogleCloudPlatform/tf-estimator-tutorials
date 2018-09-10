@@ -9,6 +9,8 @@ from tensorflow.python.tools import freeze_graph
 from tensorflow.python import ops
 from tensorflow.tools.graph_transforms import TransformGraph
 
+from inference_test import inference_test
+
 NUM_CLASSES = 10
 MODELS_LOCATION = 'models/mnist'
 MODEL_NAME = 'cnn_classifier'

@@ -1,3 +1,21 @@
+# Copyright 2018 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+""" Extract from notebook for Serving Optimization """
+
+from __future__ import print_function
+
 import os
 import numpy as np
 from datetime import datetime
@@ -198,8 +216,8 @@ def train_and_export_model(train_data, train_labels):
 
 def get_graph_def_from_saved_model(saved_model_dir):
 
-  print saved_model_dir
-  print ""
+  print(saved_model_dir)
+  print("")
 
   with tf.Session() as session:
       meta_graph_def = tf.saved_model.loader.load(
@@ -214,38 +232,38 @@ def get_graph_def_from_saved_model(saved_model_dir):
 #### Describe GraphDef
 
 def describe_graph(graph_def, show_nodes=False):
-  print 'Input Feature Nodes: {}'.format([node.name for node in graph_def.node if node.op=='Placeholder'])
-  print ""
-  print 'Unused Nodes: {}'.format([node.name for node in graph_def.node if 'unused'  in node.name])
-  print ""
-  print 'Output Nodes: {}'.format( [node.name for node in graph_def.node if 'predictions' in node.name])
-  print ""
-  print 'Quanitization Nodes: {}'.format( [node.name for node in graph_def.node if 'quant' in node.name])
-  print ""
-  print 'Constant Count: {}'.format( len([node for node in graph_def.node if node.op=='Const']))
-  print ""
-  print 'Variable Count: {}'.format( len([node for node in graph_def.node if 'Variable' in node.op]))
-  print ""
-  print 'Identity Count: {}'.format( len([node for node in graph_def.node if node.op=='Identity']))
-  print ""
-  print 'Total nodes: {}'.format( len(graph_def.node))
-  print ''
+  print('Input Feature Nodes: {}'.format([node.name for node in graph_def.node if node.op=='Placeholder']))
+  print("")
+  print('Unused Nodes: {}'.format([node.name for node in graph_def.node if 'unused'  in node.name]))
+  print("")
+  print('Output Nodes: {}'.format( [node.name for node in graph_def.node if 'predictions' in node.name]))
+  print("")
+  print('Quanitization Nodes: {}'.format( [node.name for node in graph_def.node if 'quant' in node.name]))
+  print("")
+  print('Constant Count: {}'.format( len([node for node in graph_def.node if node.op=='Const'])))
+  print("")
+  print('Variable Count: {}'.format( len([node for node in graph_def.node if 'Variable' in node.op])))
+  print("")
+  print('Identity Count: {}'.format( len([node for node in graph_def.node if node.op=='Identity'])))
+  print("")
+  print('Total nodes: {}'.format( len(graph_def.node)))
+  print('')
 
   if show_nodes==True:
     for node in graph_def.node:
-      print 'Op:{} - Name: {}'.format(node.op, node.name)
+      print('Op:{} - Name: {}'.format(node.op, node.name))
 
 
 #### Get model size
 
 def get_size(model_dir, model_file='saved_model.pb', output_vars=True):
 
-  print model_dir
-  print ""
+  print(model_dir)
+  print("")
 
   pb_size = os.path.getsize(os.path.join(model_dir, model_file))
 
-  print "Model size: {} KB".format(round(pb_size/(1024.0),3))
+  print("Model size: {} KB".format(round(pb_size/(1024.0),3)))
 
   variables_size = 0
   if output_vars:
@@ -253,16 +271,16 @@ def get_size(model_dir, model_file='saved_model.pb', output_vars=True):
       variables_size = os.path.getsize(os.path.join(model_dir,'variables/variables.data-00000-of-00001'))
       variables_size += os.path.getsize(os.path.join(model_dir,'variables/variables.index'))
 
-    print "Variables size: {} KB".format(round( variables_size/(1024.0),3))
+    print("Variables size: {} KB".format(round( variables_size/(1024.0),3)))
 
-  print "Total Size: {} KB".format(round((pb_size + variables_size)/(1024.0),3))
+  print("Total Size: {} KB".format(round((pb_size + variables_size)/(1024.0),3)))
 
 
 #### Get graph def from MetaGraphDef
 
 def get_graph_def_from_file(graph_filepath):
-  print graph_filepath
-  print ""
+  print(graph_filepath)
+  print("")
   with ops.Graph().as_default():
     with tf.gfile.GFile(graph_filepath, "rb") as f:
       graph_def = tf.GraphDef()
@@ -291,10 +309,10 @@ def optimize_graph(model_dir, graph_filename, transforms, output_node):
                       as_text=False,
                       name='optimized_model.pb')
 
-  print "Graph optimized!"
+  print("Graph optimized!")
 
 
-def freeze_graph(saved_model_dir, output_node_names, output_filename):
+def freeze(saved_model_dir, output_node_names, output_filename):
   output_graph_filename = os.path.join(saved_model_dir, output_filename)
   initializer_nodes = ""
 
@@ -313,7 +331,7 @@ def freeze_graph(saved_model_dir, output_node_names, output_filename):
       clear_devices=False,
       input_meta_graph=False,
   )
-  print "SavedModel graph freezed!"
+  print("SavedModel graph freezed!")
 
 
 def convert_graph_def_to_saved_model(export_dir, graph_filepath):
@@ -337,10 +355,9 @@ def convert_graph_def_to_saved_model(export_dir, graph_filepath):
                 "head/predictions/class_ids:0"),
         }
     )
-    print "Optimized graph converted to SavedModel!"
+    print("Optimized graph converted to SavedModel!")
 
 
-######################################################################################################
 
 def setup_model():
   train_data, train_labels, eval_data, eval_labels = load_mnist_data()
@@ -348,7 +365,6 @@ def setup_model():
   return export_dir, eval_data
 
 
-#    'quantize_weights',
 TRANSFORMS = [
     'remove_nodes(op=Identity)',
     'fold_constants(ignore_errors=true)',
@@ -357,15 +373,20 @@ TRANSFORMS = [
     'fold_batch_norms'
 ]
 
+QUANTIZE_TRANSFORMS = [
+    'quantize_weights',
+    'quantize_nodes'
+]
+
 
 def optimize_model(saved_model_dir):
   optimize_graph(saved_model_dir, None, TRANSFORMS, 'head/predictions/class_ids')
-  optimized_filepath = os.path.join(saved_model_dir,'optimized_model.pb')
+  optimized_filepath = os.path.join(saved_model_dir, 'optimized_model.pb')
   return optimized_filepath
 
 
 def freeze_model(saved_model_dir):
-  freeze_graph(saved_model_dir, "head/predictions/class_ids", "frozen_model.pb")
+  freeze(saved_model_dir, "head/predictions/class_ids", "frozen_model.pb")
   frozen_filepath = os.path.join(saved_model_dir, "frozen_model.pb")
   return frozen_filepath
 
@@ -375,7 +396,7 @@ def main():
   saved_model_dir = os.path.join(export_dir, os.listdir(export_dir)[-1])
   describe_graph(get_graph_def_from_saved_model(saved_model_dir), show_nodes=True)
 
-  inference_test(saved_model_dir, eval_data, signature='serving_default', repeat=10000)
+  inference_test(saved_model_dir, eval_data, repeat=10000)
 
   frozen_filepath = freeze_model(saved_model_dir)
   describe_graph(get_graph_def_from_file(frozen_filepath), show_nodes=True)
@@ -385,9 +406,12 @@ def main():
   describe_graph(get_graph_def_from_file(optimized_filepath), show_nodes=True)
   get_size(saved_model_dir, 'optimized_model.pb', output_vars=False)
 
+  optimized_export_dir = os.path.join(export_dir, 'optimized')
   convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath)
 
-  inference_test(freezed_saved_model_dir, eval_data, signature='serving_default', repeat=10000)
+  inference_test(optimized_export_dir, eval_data,
+                 signature='serving_default',
+                 repeat=10000)
 
 
 if __name__ == '__main__':

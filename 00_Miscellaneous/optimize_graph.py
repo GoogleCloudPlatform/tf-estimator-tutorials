@@ -382,24 +382,31 @@ def main(args):
   if len(args) > 1 and args[1] == '--inference':
     export_dir = args[2]
     _, _, eval_data, _ = load_mnist_data()
-    total_time = 0.0
+
+    total_load_time = 0.0
+    total_serve_time = 0.0
     saved_model_dir = os.path.join(
         export_dir, [f for f in os.listdir(export_dir) if f.isdigit()][0])
     for i in range(0, NUM_TRIALS):
-      total_time += inference_test(saved_model_dir, eval_data, repeat=10000)
+      load_time, serving_time = inference_test(saved_model_dir, eval_data, repeat=10000)
+      total_load_time += load_time
+      total_serve_time += serving_time
 
     print("****************************************")
-    print("*** Total time on original model: {:.2f}".format(total_time / NUM_TRIALS))
+    print("*** Load time on original model: {:.2f}".format(total_load_time / NUM_TRIALS))
+    print("*** Serve time on original model: {:.2f}".format(total_serve_time / NUM_TRIALS))
     print("****************************************")
 
-    total_time = 0.0
+    total_load_time = 0.0
+    total_serve_time = 0.0
     optimized_export_dir = os.path.join(export_dir, 'optimized')
     for i in range(0, NUM_TRIALS):
-      total_time += inference_test(optimized_export_dir, eval_data,
-                                   signature='serving_default',
-                                  repeat=10000)
+      load_time, serving_time = inference_test(optimized_export_dir, eval_data,
+                                               signature='serving_default',
+                                               repeat=10000)
     print("****************************************")
-    print("*** Total time on optimized model: {:.2f}".format(total_time / NUM_TRIALS))
+    print("*** Load time on optimized model: {:.2f}".format(total_load_time / NUM_TRIALS))
+    print("*** Serve time on optimized model: {:.2f}".format(total_serve_time / NUM_TRIALS))
     print("****************************************")
 
 

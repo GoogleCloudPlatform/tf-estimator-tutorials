@@ -19,44 +19,46 @@ from __future__ import print_function
 import tensorflow as tf
 from datetime import datetime
 
+BATCH_SIZE = 10
 
 def inference_test(saved_model_dir,
                    eval_data,
-                   signature="predict",
+                   signature='predict',
                    repeat=10):
   tf.logging.set_verbosity(tf.logging.ERROR)
 
+  # load model
   time_start = datetime.utcnow()
-
-  predictor = tf.contrib.predictor.from_saved_model(
-      export_dir=saved_model_dir,
-      signature_def_key=signature
-  )
+  for i in range(repeat):
+    predictor = tf.contrib.predictor.from_saved_model(
+        export_dir=saved_model_dir,
+        signature_def_key=signature
+    )
   time_end = datetime.utcnow()
 
-  time_elapsed = time_end - time_start
+  loading_time = (time_end - time_start).total_seconds()
 
-  print("", "Model loading time: {} seconds".format(
-      time_elapsed.total_seconds()), "")
+  print('', 'Model loading time: {} seconds'.format(
+      loading_time), '')
 
+  # serve a batch of
   time_start = datetime.utcnow()
   output = None
   for i in range(repeat):
     output = predictor(
-        {'input_image': eval_data[:10]}
+        {'input_image': eval_data[:BATCH_SIZE]}
     )
-
   time_end = datetime.utcnow()
 
-  print("Prediction produced for {} instances repeated {} times".format(
-      len(output['class_ids']), repeat), "")
+  print('Prediction produced for {} instances repeated {} times'.format(
+      BATCH_SIZE, repeat), '')
 
-  time_elapsed = (time_end - time_start).total_seconds()
-  print("Inference elapsed time: {} seconds".format(
-      time_elapsed), "")
+  serving_time = (time_end - time_start).total_seconds()
+  print('Inference elapsed time: {} seconds'.format(
+      serving_time), '')
 
-  print("Prediction output for the last instance:")
+  print('Prediction output for the last instance:')
   for key in output.keys():
-    print("{}: {}".format(key,output[key][0]))
+    print('{}: {}'.format(key,output[key][0]))
 
-  return time_elapsed
+  return loading_time, serving_time

@@ -383,7 +383,8 @@ def main(args):
     export_dir = args[2]
     _, _, eval_data, _ = load_mnist_data()
     total_time = 0.0
-    saved_model_dir = os.path.join(export_dir, os.listdir(export_dir)[-1])
+    saved_model_dir = os.path.join(
+        export_dir, [f for f in os.listdir(export_dir) if f.isdigit()][0])
     for i in range(0, NUM_TRIALS):
       total_time += inference_test(saved_model_dir, eval_data, repeat=10000)
 

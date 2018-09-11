@@ -29,7 +29,7 @@ def inference_test(saved_model_dir,
 
   # load model
   time_start = datetime.utcnow()
-  for i in range(repeat):
+  for i in range(repeat/10):
     predictor = tf.contrib.predictor.from_saved_model(
         export_dir=saved_model_dir,
         signature_def_key=signature

@@ -356,7 +356,6 @@ def convert_graph_def_to_saved_model(export_dir, graph_filepath):
     print('Optimized graph converted to SavedModel!')
 
 
-
 def setup_model():
   train_data, train_labels, eval_data, eval_labels = load_mnist_data()
   export_dir = train_and_export_model(train_data, train_labels)
@@ -404,6 +403,8 @@ def main(args):
       load_time, serving_time = inference_test(optimized_export_dir, eval_data,
                                                signature='serving_default',
                                                repeat=10000)
+      total_load_time += load_time
+      total_serve_time += serving_time
     print("****************************************")
     print("*** Load time on optimized model: {:.2f}".format(total_load_time / NUM_TRIALS))
     print("*** Serve time on optimized model: {:.2f}".format(total_serve_time / NUM_TRIALS))

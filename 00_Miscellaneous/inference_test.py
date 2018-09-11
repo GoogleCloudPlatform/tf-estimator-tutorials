@@ -43,9 +43,7 @@ def inference_test(saved_model_dir,
   output = None
   for i in range(repeat):
     output = predictor(
-        {
-            'input_image': eval_data[:10]
-        }
+        {'input_image': eval_data[:10]}
     )
 
   time_end = datetime.utcnow()
@@ -53,10 +51,12 @@ def inference_test(saved_model_dir,
   print("Prediction produced for {} instances repeated {} times".format(
       len(output['class_ids']), repeat), "")
 
-  time_elapsed = time_end - time_start
+  time_elapsed = (time_end - time_start).total_seconds()
   print("Inference elapsed time: {} seconds".format(
-      time_elapsed.total_seconds()), "")
+      time_elapsed), "")
 
   print("Prediction output for the last instance:")
   for key in output.keys():
     print("{}: {}".format(key,output[key][0]))
+
+  return time_elapsed

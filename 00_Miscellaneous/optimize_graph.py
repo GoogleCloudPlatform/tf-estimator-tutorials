@@ -19,6 +19,7 @@ from __future__ import print_function
 import os
 import numpy as np
 from datetime import datetime
+import sys
 
 import tensorflow as tf
 from tensorflow import data
@@ -375,31 +376,56 @@ QUANTIZE_TRANSFORMS = [
     'quantize_nodes'
 ]
 
+NUM_TRIALS = 10
 
-def main():
-  export_dir, eval_data = setup_model()
-  saved_model_dir = os.path.join(export_dir, os.listdir(export_dir)[-1])
-  describe_graph(get_graph_def_from_saved_model(saved_model_dir), show_nodes=True)
+def main(args):
+  if len(args) > 1 and args[1] == '--inference':
+    export_dir = args[2]
+    _, _, eval_data, _ = load_mnist_data()
+    total_time = 0.0
+    saved_model_dir = os.path.join(export_dir, os.listdir(export_dir)[-1])
+    for i in range(0, NUM_TRIALS):
+      total_time += inference_test(saved_model_dir, eval_data, repeat=10000)
 
-  inference_test(saved_model_dir, eval_data, repeat=10000)
+    print("****************************************")
+    print("*** Total time on original model: {:.2f}".format(total_time / NUM_TRIALS))
+    print("****************************************")
 
-  freeze_model(saved_model_dir, 'head/predictions/class_ids', 'frozen_model.pb')
-  frozen_filepath = os.path.join(saved_model_dir, 'frozen_model.pb')
-  describe_graph(get_graph_def_from_file(frozen_filepath), show_nodes=True)
-  get_size(saved_model_dir, 'frozen_model.pb', output_vars=False)
+    total_time = 0.0
+    optimized_export_dir = os.path.join(export_dir, 'optimized')
+    for i in range(0, NUM_TRIALS):
+      total_time += inference_test(optimized_export_dir, eval_data,
+                                   signature='serving_default',
+                                  repeat=10000)
+    print("****************************************")
+    print("*** Total time on optimized model: {:.2f}".format(total_time / NUM_TRIALS))
+    print("****************************************")
 
-  optimize_graph(saved_model_dir, 'frozen_model.pb', TRANSFORMS, 'head/predictions/class_ids')
-  optimized_filepath = os.path.join(saved_model_dir, 'optimized_model.pb')
-  describe_graph(get_graph_def_from_file(optimized_filepath), show_nodes=True)
-  get_size(saved_model_dir, 'optimized_model.pb', output_vars=False)
 
-  optimized_export_dir = os.path.join(export_dir, 'optimized')
-  convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath)
+  else:
+    export_dir, eval_data = setup_model()
+    saved_model_dir = os.path.join(export_dir, os.listdir(export_dir)[-1])
+    describe_graph(get_graph_def_from_saved_model(saved_model_dir), show_nodes=True)
 
-  inference_test(optimized_export_dir, eval_data,
-                 signature='serving_default',
-                 repeat=10000)
+    inference_test(saved_model_dir, eval_data, repeat=10000)
+
+    freeze_model(saved_model_dir, 'head/predictions/class_ids', 'frozen_model.pb')
+    frozen_filepath = os.path.join(saved_model_dir, 'frozen_model.pb')
+    describe_graph(get_graph_def_from_file(frozen_filepath), show_nodes=True)
+    get_size(saved_model_dir, 'frozen_model.pb', output_vars=False)
+
+    optimize_graph(saved_model_dir, 'frozen_model.pb', TRANSFORMS, 'head/predictions/class_ids')
+    optimized_filepath = os.path.join(saved_model_dir, 'optimized_model.pb')
+    describe_graph(get_graph_def_from_file(optimized_filepath), show_nodes=True)
+    get_size(saved_model_dir, 'optimized_model.pb', output_vars=False)
+
+    optimized_export_dir = os.path.join(export_dir, 'optimized')
+    convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath)
+
+    inference_test(optimized_export_dir, eval_data,
+                   signature='serving_default',
+                   repeat=10000)
 
 
 if __name__ == '__main__':
-  main()
+  main(sys.argv)

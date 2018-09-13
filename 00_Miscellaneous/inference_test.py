@@ -37,7 +37,6 @@ def inference_test(saved_model_dir,
   time_end = datetime.utcnow()
 
   loading_time = (time_end - time_start).total_seconds()
-
   print('', 'Model loading time: {} seconds'.format(
       loading_time), '')
 

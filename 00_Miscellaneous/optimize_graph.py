@@ -41,49 +41,47 @@ def load_mnist_data():
   train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
   eval_data = mnist.test.images
   eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
-
   return train_data, train_labels, eval_data, eval_labels
 
 
 def model_fn(features, labels, mode, params):
-
   # conv layers
   def _cnn_layers(input_layer, num_conv_layers, init_filters, mode):
     inputs = input_layer
     for i in range(num_conv_layers):
       current_filters = init_filters * (2**i)
-      conv = tf.layers.conv2d(inputs=inputs, kernel_size=3, filters=current_filters, strides=1,
-                               padding='SAME', name='conv{}'.format(i+1))
-      pool = tf.layers.max_pooling2d(inputs=conv, pool_size=2, strides=2,
-                                      padding='SAME', name='pool{}'.format(i+1))
-      batch_norm = tf.layers.batch_normalization(pool, name='batch_norm{}'.format(i+1))
-
-      if params.debug == True:
-          tf.summary.histogram('Batch_Normalisation', batch_norm)
-
+      conv = tf.layers.conv2d(inputs=inputs, kernel_size=3,
+                              filters=current_filters, strides=1,
+                              padding='SAME', name='conv{}'.format(i+1))
+      pool = tf.layers.max_pooling2d(
+          inputs=conv, pool_size=2, strides=2,
+          padding='SAME', name='pool{}'.format(i+1))
+      batch_norm = tf.layers.batch_normalization(
+          pool, name='batch_norm{}'.format(i+1))
       if mode==tf.estimator.ModeKeys.TRAIN:
           batch_norm = tf.nn.dropout(batch_norm, params.drop_out)
-
       inputs = batch_norm
-
     outputs = batch_norm
     return outputs
 
   # model body
-  def _inference(features, mode, params):
-    input_layer = tf.reshape(features['input_image'], [-1, 28, 28, 1], name='input_image')
-    conv_outputs = _cnn_layers(input_layer, params.num_conv_layers, params.init_filters, mode)
+  def _body(features, mode, params):
+    input_layer = tf.reshape(features['input_image'],
+                             [-1, 28, 28, 1], name='input_image')
+    conv_outputs = _cnn_layers(input_layer,
+                               params.num_conv_layers,
+                               params.init_filters, mode)
     flatten = tf.layers.flatten(inputs=conv_outputs, name='flatten')
-    fully_connected = tf.contrib.layers.stack(inputs=flatten, layer=tf.contrib.layers.fully_connected,
-                                              stack_args=params.hidden_units,
-                                              activation_fn=tf.nn.relu)
-    if params.debug == True:
-      tf.summary.histogram('Fully_Connected', fully_connected)
-
+    fully_connected = tf.contrib.layers.stack(
+        inputs=flatten,
+        layer=tf.contrib.layers.fully_connected,
+        stack_args=params.hidden_units,
+        activation_fn=tf.nn.relu)
     # unused_layer
-    unused_layers = tf.layers.dense(flatten, units=100, name='unused', activation=tf.nn.relu)
-
-    logits = tf.layers.dense(fully_connected, units=NUM_CLASSES, name='logits', activation=None)
+    unused_layers = tf.layers.dense(flatten, units=100, name='unused',
+                                    activation=tf.nn.relu)
+    logits = tf.layers.dense(fully_connected, units=NUM_CLASSES,
+                             name='logits', activation=None)
     return logits
 
   # model head
@@ -92,7 +90,7 @@ def model_fn(features, labels, mode, params):
   return head.create_estimator_spec(
       features=features,
       mode=mode,
-      logits=_inference(features, mode, params),
+      logits=_body(features, mode, params),
       labels=labels,
       optimizer=tf.train.AdamOptimizer(params.learning_rate)
   )
@@ -120,7 +118,6 @@ def create_estimator(params, run_config):
 #### Run Experiment
 
 def run_experiment(hparams, train_data, train_labels, run_config):
-
   train_spec = tf.estimator.TrainSpec(
       input_fn = tf.estimator.inputs.numpy_input_fn(
           x={'input_image': train_data},
@@ -130,7 +127,6 @@ def run_experiment(hparams, train_data, train_labels, run_config):
           shuffle=True),
       max_steps=hparams.max_training_steps
   )
-
   eval_spec = tf.estimator.EvalSpec(
       input_fn = tf.estimator.inputs.numpy_input_fn(
           x={'input_image': train_data},
@@ -197,7 +193,8 @@ def train_and_export_model(train_data, train_labels):
   estimator = run_experiment(hparams, train_data, train_labels, run_config)
 
   def make_serving_input_receiver_fn():
-      inputs = {'input_image': tf.placeholder(shape=[None,784], dtype=tf.float32, name='input_image')}
+      inputs = {'input_image': tf.placeholder(
+          shape=[None,784], dtype=tf.float32, name='input_image')}
       return tf.estimator.export.build_raw_serving_input_receiver_fn(inputs)
 
   export_dir = os.path.join(model_dir, 'export')
@@ -216,17 +213,12 @@ def train_and_export_model(train_data, train_labels):
 #### Load GraphDef from a SavedModel Directory
 
 def get_graph_def_from_saved_model(saved_model_dir):
-
-  print(saved_model_dir)
-  print('')
-
   with tf.Session() as session:
       meta_graph_def = tf.saved_model.loader.load(
           session,
           tags=[tag_constants.SERVING],
           export_dir=saved_model_dir
       )
-
   return meta_graph_def.graph_def
 
 
@@ -257,29 +249,22 @@ def describe_graph(graph_def, show_nodes=False):
 
 #### Get model size
 
-def get_size(model_dir, model_file='saved_model.pb', output_vars=True):
-
+def get_size(model_dir, model_file='saved_model.pb'):
   print(model_dir, '')
-
   pb_size = os.path.getsize(os.path.join(model_dir, model_file))
-  print('Model size: {} KB'.format(round(pb_size/(1024.0),3)))
-
   variables_size = 0
-  if output_vars:
-    if os.path.exists(os.path.join(model_dir,'variables/variables.data-00000-of-00001')):
-      variables_size = os.path.getsize(os.path.join(model_dir,'variables/variables.data-00000-of-00001'))
-      variables_size += os.path.getsize(os.path.join(model_dir,'variables/variables.index'))
-
-    print('Variables size: {} KB'.format(round( variables_size/(1024.0),3)))
-
+  if os.path.exists(os.path.join(model_dir,'variables/variables.data-00000-of-00001')):
+    variables_size = os.path.getsize(os.path.join(model_dir,'variables/variables.data-00000-of-00001'))
+    variables_size += os.path.getsize(os.path.join(model_dir,'variables/variables.index'))
+  print('Model size: {} KB'.format(round(pb_size/(1024.0),3)))
+  print('Variables size: {} KB'.format(round( variables_size/(1024.0),3)))
   print('Total Size: {} KB'.format(round((pb_size + variables_size)/(1024.0),3)))
 
 
 #### Get graph def from MetaGraphDef
 
 def get_graph_def_from_file(graph_filepath):
-  print(graph_filepath)
-  print('')
+  print(graph_filepath, '')
   with ops.Graph().as_default():
     with tf.gfile.GFile(graph_filepath, 'rb') as f:
       graph_def = tf.GraphDef()
@@ -313,7 +298,6 @@ def optimize_graph(model_dir, graph_filename, transforms, output_node):
 def freeze_model(saved_model_dir, output_node_names, output_filename):
   output_graph_filename = os.path.join(saved_model_dir, output_filename)
   initializer_nodes = ''
-
   freeze_graph.freeze_graph(
       input_saved_model_dir=saved_model_dir,
       output_graph=output_graph_filename,
@@ -333,12 +317,9 @@ def freeze_model(saved_model_dir, output_node_names, output_filename):
 
 
 def convert_graph_def_to_saved_model(export_dir, graph_filepath):
-
   if tf.gfile.Exists(export_dir):
     tf.gfile.DeleteRecursively(export_dir)
-
   graph_def = get_graph_def_from_file(graph_filepath)
-
   with tf.Session(graph=tf.Graph()) as session:
     tf.import_graph_def(graph_def, name='')
     tf.saved_model.simple_save(
@@ -348,10 +329,8 @@ def convert_graph_def_to_saved_model(export_dir, graph_filepath):
             node.name: session.graph.get_tensor_by_name(
                 '{}:0'.format(node.name))
             for node in graph_def.node if node.op=='Placeholder'},
-        outputs={
-            'class_ids': session.graph.get_tensor_by_name(
-                'head/predictions/class_ids:0'),
-        }
+        outputs={'class_ids': session.graph.get_tensor_by_name(
+            'head/predictions/class_ids:0')}
     )
     print('Optimized graph converted to SavedModel!')
 

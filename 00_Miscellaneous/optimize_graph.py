@@ -17,7 +17,6 @@
 from __future__ import print_function
 
 import os
-import numpy as np
 from datetime import datetime
 import sys
 
@@ -28,20 +27,11 @@ from tensorflow.python.tools import freeze_graph
 from tensorflow.python import ops
 from tensorflow.tools.graph_transforms import TransformGraph
 
-from inference_test import inference_test
+from inference_test import inference_test, load_mnist_data
 
 NUM_CLASSES = 10
 MODELS_LOCATION = 'models/mnist'
 MODEL_NAME = 'cnn_classifier'
-
-
-def load_mnist_data():
-  mnist = tf.contrib.learn.datasets.load_dataset('mnist')
-  train_data = mnist.train.images
-  train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
-  eval_data = mnist.test.images
-  eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
-  return train_data, train_labels, eval_data, eval_labels
 
 
 def model_fn(features, labels, mode, params):
@@ -264,7 +254,6 @@ def get_size(model_dir, model_file='saved_model.pb'):
 #### Get graph def from MetaGraphDef
 
 def get_graph_def_from_file(graph_filepath):
-  print(graph_filepath, '')
   with ops.Graph().as_default():
     with tf.gfile.GFile(graph_filepath, 'rb') as f:
       graph_def = tf.GraphDef()
@@ -275,23 +264,19 @@ def get_graph_def_from_file(graph_filepath):
 def optimize_graph(model_dir, graph_filename, transforms, output_node):
   input_names = []
   output_names = [output_node]
-
   if graph_filename is None:
     graph_def = get_graph_def_from_saved_model(model_dir)
   else:
     graph_def = get_graph_def_from_file(os.path.join(model_dir, graph_filename))
-
   optimized_graph_def = TransformGraph(
       graph_def,
       input_names,
       output_names,
       transforms)
-
   tf.train.write_graph(optimized_graph_def,
                       logdir=model_dir,
                       as_text=False,
                       name='optimized_model.pb')
-
   print('Graph optimized!')
 
 

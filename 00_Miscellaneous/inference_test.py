@@ -49,9 +49,9 @@ def load_mnist_data():
 
 
 def inference_tfserving(eval_data, batch=BATCH_SIZE, repeat=10, signature='predict'):
-  url = 'http://localhost:8501/v1/models/mnist:predict'
+  url = 'http://localhost:8501/v1/models/mnist_classifier:predict'
 
-  instances = [ [float(i) for i in list(eval_data[img])] for img in range(batch)]
+  instances = [[float(i) for i in list(eval_data[img])] for img in range(batch)]
 
   request_data = {'signature_name': signature,
                   'instances': instances}

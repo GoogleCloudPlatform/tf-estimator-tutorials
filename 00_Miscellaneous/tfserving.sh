@@ -17,15 +17,15 @@
 rm -rf /tmp/tfserving
 mkdir -p /tmp/tfserving
 
-saved_models_base=models/mnist/cnn_classifier/export/
+saved_models_base=models/mnist/cnn_classifier/export
 
-if [[$# == 1]]; then
-  saved_model_dir=${saved_models_base}$(ls ${saved_models_base} | head -n 1)
+if [[ $# == 0 ]]; then
+  saved_model_dir=${saved_models_base}/$(ls ${saved_models_base} | head -n 1)
 else
-  saved_model_dir=${saved_models_base}/$2
+  saved_model_dir=${saved_models_base}/$1
 fi
 
-cp -r $saved_model_dir /tmp/tfserving
+cp -r $saved_model_dir /tmp/tfserving/0000000001
 
 docker run -p 8501:8501 --mount type=bind,source=/tmp/tfserving,target=/models/mnist_classifier \
 -e MODEL_NAME=mnist_classifier -t tensorflow/serving

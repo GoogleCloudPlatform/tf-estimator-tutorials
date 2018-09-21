@@ -29,7 +29,7 @@ gcloud beta compute instances create ${HOST_NAME} \
  --maintenance-policy=TERMINATE \
  --accelerator=type=nvidia-tesla-p100,count=1 \
  --metadata='install-nvidia-driver=True' \
- --image=${IMAGE_NAME} \
+ --image-family=${IMAGE_NAME} \
  --image-project=${IMAGE_PROJECT} \
  --boot-disk-size=200GB \
  --boot-disk-type=pd-standard \
@@ -46,7 +46,7 @@ gcloud beta compute instances create ${HOST_NAME} \
  --zone=${ZONE} \
  --machine-type=n1-standard-4 \
  --maintenance-policy=TERMINATE \
- --image=${IMAGE_NAME} \
+ --image-family=${IMAGE_NAME} \
  --image-project=${IMAGE_PROJECT} \
  --boot-disk-size=200GB \
  --boot-disk-type=pd-standard \
@@ -60,3 +60,17 @@ gcloud beta compute instances create ${HOST_NAME} \
 ```
 gcloud compute ssh $HOST_NAME --project=$PROJECT --zone=$ZONE -- -L 8080:localhost:8080
 ```
+
+### Access JupyterLab running locally
+
+Go to http://localhost:8080
+
+Open a Terminal via the Launcher
+
+Clone the repo:
+```
+git clone https://github.com/GoogleCloudPlatform/tf-estimator-tutorials.git
+```
+
+
+

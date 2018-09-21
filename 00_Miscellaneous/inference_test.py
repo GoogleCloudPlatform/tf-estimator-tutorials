@@ -149,7 +149,9 @@ def inference_test(saved_model_dir,
 if __name__ == '__main__':
   _, _, eval_data, _ = load_mnist_data()
   engine = sys.argv[1]
-  if engine == 'cmle':
+  if engine == 'predictor':
+    inference_test(sys.argv[2], eval_data)
+  elif engine == 'cmle':
     inference_cmle(sys.argv[2], eval_data)
   elif engine == 'tfserving':
     inference_tfserving(eval_data, repeat=1000)

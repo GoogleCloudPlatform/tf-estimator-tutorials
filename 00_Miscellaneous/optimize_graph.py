@@ -16,10 +16,10 @@
 
 from __future__ import print_function
 
-import os
 from datetime import datetime
+import os
+import sh
 import sys
-
 import tensorflow as tf
 from tensorflow import data
 from tensorflow.python.saved_model import tag_constants
@@ -221,7 +221,7 @@ def describe_graph(graph_def, show_nodes=False):
   print('')
   print('Output Nodes: {}'.format( [node.name for node in graph_def.node if 'predictions' in node.name]))
   print('')
-  print('Quanitization Nodes: {}'.format( [node.name for node in graph_def.node if 'quant' in node.name]))
+  print('Quantization Nodes: {}'.format( [node.name for node in graph_def.node if 'quant' in node.name]))
   print('')
   print('Constant Count: {}'.format( len([node for node in graph_def.node if node.op=='Const'])))
   print('')
@@ -237,18 +237,26 @@ def describe_graph(graph_def, show_nodes=False):
       print('Op:{} - Name: {}'.format(node.op, node.name))
 
 
-#### Get model size
+#### Get model size and metagraph
 
-def get_size(model_dir, model_file='saved_model.pb'):
-  print(model_dir, '')
-  pb_size = os.path.getsize(os.path.join(model_dir, model_file))
+def get_size(model_dir, model_file='saved_model.pb', include_vars=True):
+  model_file_path = os.path.join(model_dir, model_file)
+  print(model_file_path, '')
+  pb_size = os.path.getsize(model_file_path)
   variables_size = 0
-  if os.path.exists(os.path.join(model_dir,'variables/variables.data-00000-of-00001')):
-    variables_size = os.path.getsize(os.path.join(model_dir,'variables/variables.data-00000-of-00001'))
+  if include_vars and os.path.exists(os.path.join(model_dir,'variables/variables.data-00000-of-00001')):
+    variables_size = os.path.getsize(os.path.join(
+        model_dir,'variables/variables.data-00000-of-00001'))
     variables_size += os.path.getsize(os.path.join(model_dir,'variables/variables.index'))
   print('Model size: {} KB'.format(round(pb_size/(1024.0),3)))
-  print('Variables size: {} KB'.format(round( variables_size/(1024.0),3)))
-  print('Total Size: {} KB'.format(round((pb_size + variables_size)/(1024.0),3)))
+  if include_vars:
+    print('Variables size: {} KB'.format(round( variables_size/(1024.0),3)))
+    print('Total Size: {} KB'.format(round((pb_size + variables_size)/(1024.0),3)))
+
+
+def get_metagraph(model_dir):
+  output = sh.saved_model_cli('show', '--dir=%s' % model_dir, '--all')
+  print(output)
 
 
 #### Get graph def from MetaGraphDef
@@ -376,28 +384,31 @@ def main(args):
 
 
   else:
+    # generate and output original model
     export_dir, eval_data = setup_model()
     saved_model_dir = os.path.join(export_dir, os.listdir(export_dir)[-1])
-    describe_graph(get_graph_def_from_saved_model(saved_model_dir), show_nodes=True)
+    describe_graph(get_graph_def_from_saved_model(saved_model_dir))
+    get_size(saved_model_dir, 'saved_model.pb')
+    get_metagraph(saved_model_dir)
 
-    inference_test(saved_model_dir, eval_data, repeat=10000)
-
+    # freeze model and describe it
     freeze_model(saved_model_dir, 'head/predictions/class_ids', 'frozen_model.pb')
     frozen_filepath = os.path.join(saved_model_dir, 'frozen_model.pb')
-    describe_graph(get_graph_def_from_file(frozen_filepath), show_nodes=True)
-    get_size(saved_model_dir, 'frozen_model.pb', output_vars=False)
+    describe_graph(get_graph_def_from_file(frozen_filepath))
+    get_size(saved_model_dir, 'frozen_model.pb', include_vars=False)
 
+    # optimize model and describe it
     optimize_graph(saved_model_dir, 'frozen_model.pb', TRANSFORMS, 'head/predictions/class_ids')
     optimized_filepath = os.path.join(saved_model_dir, 'optimized_model.pb')
-    describe_graph(get_graph_def_from_file(optimized_filepath), show_nodes=True)
-    get_size(saved_model_dir, 'optimized_model.pb', output_vars=False)
+    describe_graph(get_graph_def_from_file(optimized_filepath))
+    get_size(saved_model_dir, 'optimized_model.pb', include_vars=False)
 
+    # convert to saved model and output metagraph again
     optimized_export_dir = os.path.join(export_dir, 'optimized')
     convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath)
+    get_size(optimized_export_dir, 'saved_model.pb')
+    get_metagraph(optimized_export_dir)
 
-    inference_test(optimized_export_dir, eval_data,
-                   signature='serving_default',
-                   repeat=10000)
 
 
 if __name__ == '__main__':

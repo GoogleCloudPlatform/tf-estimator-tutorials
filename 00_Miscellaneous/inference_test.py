@@ -154,4 +154,9 @@ if __name__ == '__main__':
   elif engine == 'cmle':
     inference_cmle(sys.argv[2], eval_data)
   elif engine == 'tfserving':
-    inference_tfserving(eval_data, repeat=1000)
+    if len(sys.argv > 2):
+      print('Calling inference_tfserving with signature "{}"'.format(sys.argv[2]))
+      inference_tfserving(eval_data, repeat=1000, signature=sys.argv[2])
+    else:
+      print('Calling inference_tfserving with signature "predict"')
+      inference_tfserving(eval_data, repeat=1000)

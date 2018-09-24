@@ -67,10 +67,6 @@ Go to http://localhost:8080
 
 Open a Terminal via the Launcher
 
-Clone the repo:
-```
-git clone https://github.com/GoogleCloudPlatform/tf-estimator-tutorials.git
-```
 
 
 

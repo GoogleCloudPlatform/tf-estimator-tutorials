@@ -1,0 +1,7 @@
+bs4==0.0.1
+google-cloud-dataflow==2.4.0
+jupyter
+nltk==3.3
+tensorflow==1.8.0
+tensorflow-hub==0.1.0
+tensorflow-transform==0.6.0

@@ -39,12 +39,18 @@ api = discovery.build(
     discoveryServiceUrl=DISCOVERY_URL
 )
 
+
 def load_mnist_data():
   mnist = tf.contrib.learn.datasets.load_dataset('mnist')
   train_data = mnist.train.images
   train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
   eval_data = mnist.test.images
   eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
+  return train_data, train_labels, eval_data, eval_labels
+
+
+def load_mnist_keras():
+  (train_data, train_labels), (eval_data, eval_labels) = tf.keras.datasets.mnist.load_data()
   return train_data, train_labels, eval_data, eval_labels
 
 

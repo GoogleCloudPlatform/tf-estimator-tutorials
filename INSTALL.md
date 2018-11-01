@@ -22,7 +22,9 @@ https://cloud.google.com/compute/quotas
 
 ```
 export IMAGE_NAME="tf-latest-cu92"
+```
 
+```
 gcloud beta compute instances create ${HOST_NAME} \
  --project=${PROJECT} \
  --zone=${ZONE} \
@@ -42,7 +44,9 @@ gcloud beta compute instances create ${HOST_NAME} \
 
 ```
 export IMAGE_NAME="tf-latest-cpu"
+```
 
+```
 gcloud beta compute instances create ${HOST_NAME} \
  --project=${PROJECT} \
  --zone=${ZONE} \

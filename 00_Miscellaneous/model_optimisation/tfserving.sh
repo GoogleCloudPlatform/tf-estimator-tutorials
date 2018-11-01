@@ -17,7 +17,7 @@
 rm -rf /tmp/tfserving
 mkdir -p /tmp/tfserving
 
-saved_models_base=models/mnist/cnn_classifier/export
+saved_models_base=models/mnist/keras_classifier/export
 
 if [[ $# == 0 ]]; then
   saved_model_dir=${saved_models_base}/$(ls ${saved_models_base} | head -n 1)

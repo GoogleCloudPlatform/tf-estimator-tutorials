@@ -39,12 +39,18 @@ api = discovery.build(
     discoveryServiceUrl=DISCOVERY_URL
 )
 
+
 def load_mnist_data():
   mnist = tf.contrib.learn.datasets.load_dataset('mnist')
   train_data = mnist.train.images
   train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
   eval_data = mnist.test.images
   eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
+  return train_data, train_labels, eval_data, eval_labels
+
+
+def load_mnist_keras():
+  (train_data, train_labels), (eval_data, eval_labels) = tf.keras.datasets.mnist.load_data()
   return train_data, train_labels, eval_data, eval_labels
 
 
@@ -57,7 +63,10 @@ def inference_tfserving(eval_data, batch=BATCH_SIZE, repeat=10, signature='predi
                   'instances': instances}
 
   time_start = datetime.utcnow()
-  for i in range(repeat):
+  response = requests.post(url, data=json.dumps(request_data))
+  if response.status_code != 200:
+    raise Exception("Bad response status from TF Serving instance: %d" % response.status_code)
+  for i in range(repeat-1):
     response = requests.post(url, data=json.dumps(request_data))
   time_end = datetime.utcnow()
   time_elapsed_sec = (time_end - time_start).total_seconds()

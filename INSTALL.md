@@ -20,6 +20,7 @@ https://cloud.google.com/compute/quotas
 
 ### If you have P100 quota and wish to use GPUs
 
+```
 export IMAGE_NAME="tf-latest-cu92"
 
 gcloud beta compute instances create ${HOST_NAME} \
@@ -39,6 +40,7 @@ gcloud beta compute instances create ${HOST_NAME} \
 
 ### If you don't have quota, or don't want to use GPUs
 
+```
 export IMAGE_NAME="tf-latest-cpu"
 
 gcloud beta compute instances create ${HOST_NAME} \

@@ -63,7 +63,10 @@ def inference_tfserving(eval_data, batch=BATCH_SIZE, repeat=10, signature='predi
                   'instances': instances}
 
   time_start = datetime.utcnow()
-  for i in range(repeat):
+  response = requests.post(url, data=json.dumps(request_data))
+  if response.status_code != 200:
+    raise Exception("Bad response status from TF Serving instance: %d" % response.status_code)
+  for i in range(repeat-1):
     response = requests.post(url, data=json.dumps(request_data))
   time_end = datetime.utcnow()
   time_elapsed_sec = (time_end - time_start).total_seconds()

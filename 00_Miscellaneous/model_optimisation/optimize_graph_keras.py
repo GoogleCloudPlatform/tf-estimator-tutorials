@@ -29,8 +29,8 @@ from tensorflow.tools.graph_transforms import TransformGraph
 
 from inference_test import inference_test, load_mnist_keras
 from optimize_graph import (run_experiment, get_graph_def_from_saved_model,
-    describe_graph, convert_graph_def_to_saved_model, get_size, get_metagraph,
-    get_graph_def_from_file, freeze_model, optimize_graph, TRANSFORMS)
+    describe_graph, get_size, get_metagraph, get_graph_def_from_file,
+    convert_graph_def_to_saved_model, freeze_model, optimize_graph, TRANSFORMS)
 
 NUM_CLASSES = 10
 MODELS_LOCATION = 'models/mnist'
@@ -134,25 +134,6 @@ def train_and_export_model(train_data, train_labels):
   return export_dir
 
 
-def convert_graph_def_to_saved_model(export_dir, graph_filepath, output_key, output_node_name):
-  if tf.gfile.Exists(export_dir):
-    tf.gfile.DeleteRecursively(export_dir)
-  graph_def = get_graph_def_from_file(graph_filepath)
-  with tf.Session(graph=tf.Graph()) as session:
-    tf.import_graph_def(graph_def, name='')
-    tf.saved_model.simple_save(
-        session,
-        export_dir,
-        inputs={
-            node.name: session.graph.get_tensor_by_name(
-                '{}:0'.format(node.name))
-            for node in graph_def.node if node.op=='Placeholder'},
-        outputs={output_key: session.graph.get_tensor_by_name(
-            output_node_name)}
-    )
-    print('Optimized graph converted to SavedModel!')
-
-
 def setup_model():
   train_data, train_labels, eval_data, eval_labels = load_mnist_keras()
   export_dir = train_and_export_model(train_data, train_labels)
@@ -216,7 +197,8 @@ def main(args):
 
     # convert to saved model and output metagraph again
     optimized_export_dir = os.path.join(export_dir, 'optimized')
-    convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath, 'softmax', 'softmax/Softmax:0')
+    convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath,
+                                     'softmax', 'softmax/Softmax:0')
     get_size(optimized_export_dir, 'saved_model.pb')
     get_metagraph(optimized_export_dir)
 

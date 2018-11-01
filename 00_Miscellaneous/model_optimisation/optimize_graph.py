@@ -314,7 +314,7 @@ def freeze_model(saved_model_dir, output_node_names, output_filename):
   print('****************************************')
 
 
-def convert_graph_def_to_saved_model(export_dir, graph_filepath):
+def convert_graph_def_to_saved_model(export_dir, graph_filepath, output_key, output_node_name):
   if tf.gfile.Exists(export_dir):
     tf.gfile.DeleteRecursively(export_dir)
   graph_def = get_graph_def_from_file(graph_filepath)
@@ -327,8 +327,8 @@ def convert_graph_def_to_saved_model(export_dir, graph_filepath):
             node.name: session.graph.get_tensor_by_name(
                 '{}:0'.format(node.name))
             for node in graph_def.node if node.op=='Placeholder'},
-        outputs={'class_ids': session.graph.get_tensor_by_name(
-            'head/predictions/class_ids:0')}
+        outputs={output_key: session.graph.get_tensor_by_name(
+            output_node_name)}
     )
     print('****************************************')
     print('Optimized graph converted to SavedModel!')
@@ -412,7 +412,8 @@ def main(args):
 
     # convert to saved model and output metagraph again
     optimized_export_dir = os.path.join(export_dir, 'optimized')
-    convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath)
+    convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath, 'class_ids',
+                                     'head/predictions/class_ids:0')
     get_size(optimized_export_dir, 'saved_model.pb')
     get_metagraph(optimized_export_dir)
 

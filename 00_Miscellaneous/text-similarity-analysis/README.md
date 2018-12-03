@@ -27,26 +27,24 @@ metric between embeddings of tiles and/or contents.
 
 ## Requirements
 
-You need to have your GCP project. You can use Cloud Shell or gcloud CLI to run all the commands in this guideline.
+You need to have your [GCP Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects). You can use [Cloud Shell](https://cloud.google.com/shell/docs/quickstart) or [gcloud CLI](https://cloud.google.com/sdk/) to run all the commands in this guideline.
 
 ## Setup a project
+
+Follow the [instruction](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and create a GCP project. 
+Once created, enable the Dataflow API, BigQuery API in this [page](https://console.developers.google.com/apis/enabled). You can also find more details about enabling the [billing](https://cloud.google.com/billing/docs/how-to/modify-project?#enable-billing)
+
+We recommend to use CloudShell from the GCP console to run the below commands. CloudShell starts with an environment already logged in to your account and set to the currently selected project. The following commands are required only in a workstation shell environment, they are not needed in the CloudShell. 
 
 ```bash
 gcloud auth login
 gcloud config set project [your-project-id]
-```
-
-```bash
 gcloud config set compute/zone us-central1-a
 ```
 
-- Dataflow API
-- GCS bucket API
-- BigQuery API
-
 ## Prepare a input data
 
-You need to download reuters-21578 dataset from from https://archive.ics.uci.edu/ml/datasets/reuters-21578+text+categorization+collection.
+You need to download reuters-21578 dataset from from https://archive.ics.uci.edu/ml/datasets/reuters-21578+text+categorization+collection. After downloading reuters.tar.gz from the site, you need to type the following commands to store reuter dataset to Google Cloud Storage.
 
 ```bash
 tar -zxvf reuters.tar.gz

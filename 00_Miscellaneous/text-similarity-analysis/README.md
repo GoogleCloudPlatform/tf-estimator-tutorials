@@ -1,17 +1,10 @@
 # Text Semantic Similarity Analysis Pipeline
 
-This is a Dataflow pipeline that extracts feature embeddings from
-article documents, located in Google Cloud Storage, and store them to
-BigQuery. After successfully running this pipeline, you can start
-searching similar documents from BigQuery using a cosine distance
-between feature embeddings as a similarity.
-
-Figure 1 shows the overall architecture of the pipeline. It uses
-reuters-21578, which is a collection of publicly available articles,
-as input. The pipeline is implemented using Apache Beam and
-tf.transform, and runs at scale on Cloud Dataflow.
-
-(figure should be added here)
+This is a Dataflow pipeline that reads article documents in Google
+Cloud Storage, extracts feature embeddings from the documents, and
+store those embeddings to BigQuery. After running the pipeline, you
+can easily search contextually similar documents based on a cosine
+distance between feature embeddings.
 
 In the pipeline, documents are processed to extract each article’s
 title, topics, and content. The processing pipeline uses the
@@ -44,7 +37,7 @@ gcloud config set compute/zone us-central1-a
 
 ## Prepare a input data
 
-You need to download reuters-21578 dataset from from https://archive.ics.uci.edu/ml/datasets/reuters-21578+text+categorization+collection. After downloading reuters.tar.gz from the site, you need to type the following commands to store reuter dataset to Google Cloud Storage.
+You need to download reuters-21578 dataset from from [here](https://archive.ics.uci.edu/ml/datasets/reuters-21578+text+categorization+collection). After downloading reuters.tar.gz from the site, you need to type the following commands to store reuter dataset to Google Cloud Storage.
 
 ```bash
 tar -zxvf reuters.tar.gz
@@ -53,75 +46,89 @@ gsutil -m cp -R reuters gs://${YOUR-BUCKET-NAME}
 
 ## Run the pipeline
 
-You can find a shell script (link) that lets you easily run the pipeline.
+First, set running configurations for your Dataflow job. You will need
+GCE instances with high memory in Dataflow job because tf.hub module
+uses lots of memory that doesn't fit memory of default GCE instance.
 
 ```bash
-PROJECT="YOUR-PROJECT-NAME"
-BUCKET="gs://YOUR-BUCKET-NAME"
-REGION="us-central1"
-ZONE="us-central1-c"
+# Running configurations for Dataflow
+export PROJECT=[your-project-name]
+export JOBNAME=[your-dataflow-job-name]
+export REGION=[your-preferred-region]
+export RUNNER=DataflowRunner
+export MACHINE_TYPE=n1-highmem-2
 ```
 
+If you've followed the instruction in previous section, you should
+have reuter dataset in GCS. Set a file pattern of reuter dataset to
+FILE_PATTERN variable.
+
 ```bash
-DATASET="reuters"
-TABLE="embeddings"
-FILE_PATTERN="$BUCKET/data/*.sgm"
+# A file pattern of reuter dataset located in GCS.
+export FILE_PATTERN="$BUCKET/[your-dataset-pattern]"
 ```
 
+You should also set name of BigQuery dataset and table so Dataflow
+pipeline can output the feature embeddings to the right place in
+BigQuery.
+
 ```bash
-# Working directories for dataflow
-ROOT_DIR="$BUCKET/dataflow"
-STAGING_LOCATION="$ROOT_DIR/staging"
-TEMP_LOCATION="$ROOT_DIR/temp"
+# Information about output table in BigQuery.
+export BQ_PROJECT=[your-bigquery-project-name]
+export BQ_DATASET=[your-bigquery-dataset-name]
+export BQ_TABLE=[your-bigquery-table-name]
 ```
 
+Next, you have to just run below commands. TF_EXPORT directory is
+where SavedModel file will be output by tf.transform. You can re-use
+it to get feature embeddings from documents later.
+
 ```bash
-# Working directories for tf.transform
-TRANSFORM_ROOT_DIR="$ROOT_DIR/transform"
-TRANSFORM_TEMP_DIR="$TRANSFORM_ROOT_DIR/temp"
-TRANSFORM_EXPORT_DIR="$TRANSFORM_ROOT_DIR/export"
+# A root directory.
+export ROOT="$BUCKET/$JOBNAME"
+
+# Working directories for Dataflow jobs.
+export DF_ROOT="$ROOT/dataflow"
+export DF_STAGING="$DF_ROOT/staging"
+export DF_TEMP="$DF_ROOT/temp"
+
+# Working directories for tf.transform.
+export TF_ROOT="$ROOT/transform"
+export TF_TEMP="$TF_ROOT/temp"
+export TF_EXPORT="$TF_ROOT/export"
+
+# A directory where tfrecords data will be output.
+export TFRECORD_OUTPUT_DIR="$ROOT/tfrecords"
+export PIPELINE_LOG_PREFIX="$ROOT/log/output"
 ```
 
+Before running the pipeline, you can remove previous working directory
+with below command if you want.
+
 ```bash
-# Working directories for TFRecords and Debug log
-TFRECORD_EXPORT_DIR="$ROOT_DIR/tfrecords"
-DEBUG_OUTPUT_PREFIX="$ROOT_DIR/debug/log"
+gsutil rm -r $ROOT
 ```
 
-```bash
-# Running Config for Dataflow
-RUNNER=DataflowRunner
-JOB_NAME=text-analysis
-MACHINE_TYPE=n1-highmem-2
-```
+Finally, you can run the pipeline with this command.
 
 ```bash
-# Remove Root directory before running dataflow job.
-gsutil rm -r $ROOT_DIR
-```
-
-
-```bash
-# Command to invoke dataflow job.
-python run_pipeline.py \
-  --file_pattern=$FILE_PATTERN \
-  --bq_project=$PROJECT \
-  --bq_dataset=$DATASET \
-  --bq_table=$TABLE \
-  --transform_temp_dir=$TRANSFORM_TEMP_DIR \
-  --transform_export_dir=$TRANSFORM_EXPORT_DIR \
-  --enable_tfrecord \
-  --tfrecord_export_dir $TFRECORD_EXPORT_DIR \
-  --enable_debug \
-  --debug_output_prefix=$DEBUG_OUTPUT_PREFIX \
+python etl/run_pipeline.py \
   --project=$PROJECT \
-  --runner=$RUNNER \
   --region=$REGION \
-  --staging_location=$STAGING_LOCATION \
-  --temp_location=$TEMP_LOCATION \
   --setup_file=$(pwd)/setup.py \
   --job_name=$JOB_NAME \
-  --worker_machine_type=$MACHINE_TYPE
+  --runner=$RUNNER \
+  --worker_machine_type=$MACHINE_TYPE \
+  --file_pattern=$FILE_PATTERN \
+  --bq_project=$BQ_PROJECT \
+  --bq_dataset=$BQ_DATASET \
+  --bq_table=$BQ_TABLE \
+  --staging_location=$DF_STAGING \
+  --temp_location=$DF_TEMP \
+  --transform_temp_dir=$TF_TEMP \
+  --transform_export_dir=$TF_EXPORT \
+  --enable_tfrecord \
+  --tfrecord_export_dir $TFRECORD_OUTPUT_DIR \
+  --enable_debug \
+  --debug_output_prefix=$PIPELINE_LOG_PREFIX
 ```
-
-![alt text](http://url/to/img.png)

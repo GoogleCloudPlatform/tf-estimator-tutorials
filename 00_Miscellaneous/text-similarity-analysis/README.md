@@ -65,7 +65,7 @@ If you've followed the instruction in previous section, you should have reuter d
 
 ```bash
 # A file pattern of reuter dataset located in GCS.
-export FILE_PATTERN=$BUCKET/reuters
+export FILE_PATTERN=$BUCKET/reuters/*.sgm
 ```
 
 Note that you have to create BigQuery dataset before running Dataflow job. You should also set name of BigQuery dataset and table so Dataflow pipeline can output the feature embeddings to the right place in BigQuery.

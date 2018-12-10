@@ -72,7 +72,7 @@ You should also set name of BigQuery dataset and table so Dataflow pipeline can 
 
 ```bash
 # Information about output table in BigQuery.
-export BQ_PROJECT=[your-bigquery-project-name]
+export BQ_PROJECT=$PROJECT
 export BQ_DATASET=[your-bigquery-dataset-name]
 export BQ_TABLE=[your-bigquery-table-name]
 ```
@@ -111,7 +111,7 @@ Finally, you can run the pipeline with this command.
 python etl/run_pipeline.py \
   --project=$PROJECT \
   --region=$REGION \
-  --setup_file=$(pwd)/setup.py \
+  --setup_file=$(pwd)/etl/setup.py \
   --job_name=$JOB_NAME \
   --runner=$RUNNER \
   --worker_machine_type=$MACHINE_TYPE \

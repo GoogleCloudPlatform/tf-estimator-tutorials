@@ -55,7 +55,7 @@ Set running configurations for your Dataflow job. You will need GCE instances wi
 ```bash
 # Running configurations for Dataflow
 export PROJECT=[your-project-name]
-export JOBNAME=[your-dataflow-job-name]
+export JOB_NAME=[your-dataflow-job-name]
 export REGION=[your-preferred-region]
 export RUNNER=DataflowRunner
 export MACHINE_TYPE=n1-highmem-2
@@ -81,7 +81,7 @@ Next, you have to just run below commands. TF_EXPORT directory is where SavedMod
 
 ```bash
 # A root directory.
-export ROOT="$BUCKET/$JOBNAME"
+export ROOT="$BUCKET/$JOB_NAME"
 
 # Working directories for Dataflow jobs.
 export DF_ROOT="$ROOT/dataflow"

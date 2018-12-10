@@ -1,20 +1,8 @@
 # Text Semantic Similarity Analysis Pipeline
 
-This is a Dataflow pipeline that reads article documents in Google
-Cloud Storage, extracts feature embeddings from the documents, and
-store those embeddings to BigQuery. After running the pipeline, you
-can easily search contextually similar documents based on a cosine
-distance between feature embeddings.
+This is a Dataflow pipeline that reads article documents in Google Cloud Storage, extracts feature embeddings from the documents, and store those embeddings to BigQuery. After running the pipeline, you can easily search contextually similar documents based on a cosine distance between feature embeddings.
 
-In the pipeline, documents are processed to extract each article’s
-title, topics, and content. The processing pipeline uses the
-“Universal Sentence Encoder” module in tf.hub to extract text
-embeddings for both the title and the content of each article read
-from the source documents. The title, topics, and content of each
-article, along with the extracted embeddings are stored in
-BigQuery. Having the articles, along with their embeddings, stored in
-BigQuery allow us to explore similar articles, using cosine similarity
-metric between embeddings of tiles and/or contents.
+In the pipeline, documents are processed to extract each article’s title, topics, and content. The processing pipeline uses the “Universal Sentence Encoder” module in tf.hub to extract text embeddings for both the title and the content of each article read from the source documents. The title, topics, and content of each article, along with the extracted embeddings are stored in BigQuery. Having the articles, along with their embeddings, stored in BigQuery allow us to explore similar articles, using cosine similarity metric between embeddings of tiles and/or contents.
 
 # How to run the pipeline
 
@@ -40,15 +28,29 @@ gcloud config set compute/zone us-central1-a
 You need to download reuters-21578 dataset from from [here](https://archive.ics.uci.edu/ml/datasets/reuters-21578+text+categorization+collection). After downloading reuters.tar.gz from the site, you need to type the following commands to store reuter dataset to Google Cloud Storage.
 
 ```bash
-tar -zxvf reuters.tar.gz
-gsutil -m cp -R reuters gs://${YOUR-BUCKET-NAME}
+export BUCKET=gs://[your-bucket-name]
+
+mkdir temp reuters
+tar -zxvf reuters21578.tar.gz -C temp/
+mv temp/*.sgm reuters/ && rm -rf temp
+gsutil -m cp -R reuters $BUCKET
+```
+
+## Setup python environment and sample code
+
+Follow commands below to install required python packages and download a dataflow pipeline code.
+
+```bash
+git clone [this-repo]
+cd [this-repo]/00_Miscellaneous/text-similarity-analysis
+
+# Make sure you have python 2.7 environement
+pip install -r requirements.txt
 ```
 
 ## Run the pipeline
 
-First, set running configurations for your Dataflow job. You will need
-GCE instances with high memory in Dataflow job because tf.hub module
-uses lots of memory that doesn't fit memory of default GCE instance.
+Set running configurations for your Dataflow job. You will need GCE instances with high memory in Dataflow job because tf.hub module uses lots of memory that doesn't fit memory of default GCE instance.
 
 ```bash
 # Running configurations for Dataflow
@@ -59,18 +61,14 @@ export RUNNER=DataflowRunner
 export MACHINE_TYPE=n1-highmem-2
 ```
 
-If you've followed the instruction in previous section, you should
-have reuter dataset in GCS. Set a file pattern of reuter dataset to
-FILE_PATTERN variable.
+If you've followed the instruction in previous section, you should have reuter dataset in GCS. Set a file pattern of reuter dataset to FILE_PATTERN variable.
 
 ```bash
 # A file pattern of reuter dataset located in GCS.
-export FILE_PATTERN="$BUCKET/[your-dataset-pattern]"
+export FILE_PATTERN=$BUCKET/reuters
 ```
 
-You should also set name of BigQuery dataset and table so Dataflow
-pipeline can output the feature embeddings to the right place in
-BigQuery.
+You should also set name of BigQuery dataset and table so Dataflow pipeline can output the feature embeddings to the right place in BigQuery.
 
 ```bash
 # Information about output table in BigQuery.
@@ -79,9 +77,7 @@ export BQ_DATASET=[your-bigquery-dataset-name]
 export BQ_TABLE=[your-bigquery-table-name]
 ```
 
-Next, you have to just run below commands. TF_EXPORT directory is
-where SavedModel file will be output by tf.transform. You can re-use
-it to get feature embeddings from documents later.
+Next, you have to just run below commands. TF_EXPORT directory is where SavedModel file will be output by tf.transform. You can re-use it to get feature embeddings from documents later.
 
 ```bash
 # A root directory.

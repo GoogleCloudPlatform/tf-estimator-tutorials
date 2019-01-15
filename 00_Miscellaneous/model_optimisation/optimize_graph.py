@@ -107,7 +107,7 @@ def create_estimator(params, run_config):
 
 #### Run Experiment
 
-def run_experiment(hparams, train_data, train_labels, run_config):
+def run_experiment(hparams, train_data, train_labels, run_config, create_estimator_fn=create_estimator):
   train_spec = tf.estimator.TrainSpec(
       input_fn = tf.estimator.inputs.numpy_input_fn(
           x={'input_image': train_data},
@@ -134,7 +134,7 @@ def run_experiment(hparams, train_data, train_labels, run_config):
   print('Experiment started at {}'.format(time_start.strftime('%H:%M:%S')))
   print('.......................................')
 
-  estimator = create_estimator(hparams, run_config)
+  estimator = create_estimator_fn(hparams, run_config)
 
   tf.estimator.train_and_evaluate(
       estimator=estimator,
@@ -219,7 +219,8 @@ def describe_graph(graph_def, show_nodes=False):
   print('')
   print('Unused Nodes: {}'.format([node.name for node in graph_def.node if 'unused'  in node.name]))
   print('')
-  print('Output Nodes: {}'.format( [node.name for node in graph_def.node if 'predictions' in node.name]))
+  print('Output Nodes: {}'.format(
+      [node.name for node in graph_def.node if ('predictions' in node.name or 'softmax' in node.name)]))
   print('')
   print('Quantization Nodes: {}'.format( [node.name for node in graph_def.node if 'quant' in node.name]))
   print('')
@@ -285,7 +286,9 @@ def optimize_graph(model_dir, graph_filename, transforms, output_node):
                       logdir=model_dir,
                       as_text=False,
                       name='optimized_model.pb')
+  print('****************************************')
   print('Graph optimized!')
+  print('****************************************')
 
 
 def freeze_model(saved_model_dir, output_node_names, output_filename):
@@ -306,10 +309,12 @@ def freeze_model(saved_model_dir, output_node_names, output_filename):
       clear_devices=False,
       input_meta_graph=False,
   )
+  print('****************************************')
   print('graph freezed!')
+  print('****************************************')
 
 
-def convert_graph_def_to_saved_model(export_dir, graph_filepath):
+def convert_graph_def_to_saved_model(export_dir, graph_filepath, output_key, output_node_name):
   if tf.gfile.Exists(export_dir):
     tf.gfile.DeleteRecursively(export_dir)
   graph_def = get_graph_def_from_file(graph_filepath)
@@ -322,10 +327,12 @@ def convert_graph_def_to_saved_model(export_dir, graph_filepath):
             node.name: session.graph.get_tensor_by_name(
                 '{}:0'.format(node.name))
             for node in graph_def.node if node.op=='Placeholder'},
-        outputs={'class_ids': session.graph.get_tensor_by_name(
-            'head/predictions/class_ids:0')}
+        outputs={output_key: session.graph.get_tensor_by_name(
+            output_node_name)}
     )
+    print('****************************************')
     print('Optimized graph converted to SavedModel!')
+    print('****************************************')
 
 
 def setup_model():
@@ -405,7 +412,8 @@ def main(args):
 
     # convert to saved model and output metagraph again
     optimized_export_dir = os.path.join(export_dir, 'optimized')
-    convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath)
+    convert_graph_def_to_saved_model(optimized_export_dir, optimized_filepath, 'class_ids',
+                                     'head/predictions/class_ids:0')
     get_size(optimized_export_dir, 'saved_model.pb')
     get_metagraph(optimized_export_dir)
 

@@ -20,7 +20,7 @@ from __future__ import print_function
 import setuptools
 
 REQUIRED_PACKAGES = [
-    'tensorflow==1.8.0',
+    'tensorflow==1.7.0',
     'tensorflow-hub==0.1.0',
     'tensorflow-transform==0.6.0',
     'bs4==0.0.1',

@@ -19,6 +19,7 @@ We recommend to use CloudShell from the GCP console to run the below commands. C
 
 ```bash
 gcloud auth login
+gcloud auth application-default login
 gcloud config set project [your-project-id]
 gcloud config set compute/zone us-central1-a
 ```
@@ -33,6 +34,7 @@ export BUCKET=gs://[your-bucket-name]
 mkdir temp reuters
 tar -zxvf reuters21578.tar.gz -C temp/
 mv temp/*.sgm reuters/ && rm -rf temp
+gsutil mb $BUCKET
 gsutil -m cp -R reuters $BUCKET
 ```
 
@@ -73,7 +75,11 @@ Note that you have to create BigQuery dataset before running Dataflow job. You s
 ```bash
 # Information about output table in BigQuery.
 export BQ_PROJECT=$PROJECT
+
+# You must prepare dataset before running the pipeline, otherwise it will fail.
 export BQ_DATASET=[your-bigquery-dataset-name]
+
+# An output of the pipeline will be exported to this table.
 export BQ_TABLE=[your-bigquery-table-name]
 ```
 

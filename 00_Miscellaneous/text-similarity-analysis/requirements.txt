@@ -1,6 +1,6 @@
 apache-beam[gcp]
 bs4==0.0.1
-nltk==3.3
+nltk==3.8.1
 tensorflow==1.7.0
 tensorflow-hub==0.1.0
 tensorflow-transform==0.6.0

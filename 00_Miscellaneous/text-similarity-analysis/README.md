@@ -34,8 +34,8 @@ export BUCKET=gs://[your-bucket-name]
 mkdir temp reuters
 tar -zxvf reuters21578.tar.gz -C temp/
 mv temp/*.sgm reuters/ && rm -rf temp
-gsutil mb $BUCKET
-gsutil -m cp -R reuters $BUCKET
+gcloud storage buckets create $BUCKET
+gcloud storage cp --recursive reuters $BUCKET
 ```
 
 ## Setup python environment and sample code
@@ -108,7 +108,7 @@ Before running the pipeline, you can remove previous working directory
 with below command if you want.
 
 ```bash
-gsutil rm -r $ROOT
+gcloud storage rm --recursive $ROOT
 ```
 
 Finally, you can run the pipeline with this command.

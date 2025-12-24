@@ -43,7 +43,7 @@ JOB_NAME=text-analysis
 MACHINE_TYPE=n1-highmem-2
 
 # Remove Root directory before running dataflow job.
-gsutil rm -r $ROOT_DIR
+gcloud storage rm --recursive $ROOT_DIR
 
 # Command to invoke dataflow job.
 python run_pipeline.py \

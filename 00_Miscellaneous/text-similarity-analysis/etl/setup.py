@@ -24,7 +24,7 @@ REQUIRED_PACKAGES = [
     'tensorflow-hub==0.1.0',
     'tensorflow-transform==0.6.0',
     'bs4==0.0.1',
-    'nltk==3.3']
+    'nltk==3.9.3']
 
 setuptools.setup(
     name='etl_pipeline',
